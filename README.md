@@ -49,3 +49,45 @@ Exemple : {action, combat, hackandslash} et {action, mondeouvert, rpg} ont 1 tag
 | Déploiement | Docker |
 
 ## Structure du projet
+
+```
+game-match/
+├── backend/
+│   ├── controllers/   routes de l'API
+│   ├── services/      algorithmes de recommandation
+│   ├── models/        accès aux données
+│   ├── scripts/       préparation des données
+│   ├── tests/
+│   └── data/
+├── frontend/
+├── docs/
+├── README.md
+├── LICENSE
+└── .gitignore
+```
+
+## Installation
+
+Instructions à compléter dès que le backend et le frontend sont en place.
+
+## Organisation Git
+
+- Une branche par membre, nommée `prenom/version`
+- Intégration dans `main` par Pull Request après relecture
+- Numérotation des versions en semantic versioning (`v0.1.0`, `v0.2.0`, ..., `v1.0.0`)
+
+## Équipe : Les Castors bâtisseurs
+
+- Kenzo Fillonneau
+- Tristan Collen
+- Elaa Maiz
+- Amira Ben Chaabane
+- Mohamed Flifel
+
+## Licence
+
+Le code source est sous licence MIT (voir le fichier `LICENSE`). Le dataset est distribué sous sa propre licence MIT par son auteur sur Kaggle.
+
+## État du projet
+
+19/10 : dépôt créé, dataset choisi et téléchargé, structure du projet en place. Prochaine étape : nettoyage des données et première méthode de recommandation (Jaccard).

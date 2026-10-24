@@ -41,7 +41,7 @@ Exemple : {action, combat, hackandslash} et {action, mondeouvert, rpg} ont 1 tag
 |---|---|
 | Frontend | Vue.js 3, Vite |
 | Backend | Python, FastAPI |
-| Base de données | SQLite, SQLAlchemy |
+| Persistance | CSV nettoyé (`games_clean.csv`) lu par Pandas. SQLite prévu pour préférences utilisateur (v0.2) |
 | Données | Pandas, NumPy |
 | Embeddings | Sentence Transformers |
 | Visualisation | Chart.js |
@@ -78,16 +78,29 @@ Instructions à compléter dès que le backend et le frontend sont en place.
 
 ## Équipe : Les Castors bâtisseurs
 
+- Amira Ben Chaabane
 - Kenzo Fillonneau
 - Tristan Collen
-- Elaa Maiz
-- Amira Ben Chaabane
 - Mohamed Flifel
+- Elaa Maiz
 
 ## Licence
 
 Le code source est sous licence MIT (voir le fichier `LICENSE`). Le dataset est distribué sous sa propre licence MIT par son auteur sur Kaggle.
 
+## Réponses aux remarques du jury
+
+1. Jaccard : approche plate volontaire (tags SteamSpy sans hiérarchie). Amélioration future possible avec taxonomie externe.
+2. Granularité : tags nettoyés (minuscule, suppression des très rares <3 occurrences dans l'échantillon). Pas d'enrichissement ChatGPT.
+3. Embeddings : description complète utilisée. Isoler gameplay/graphismes possible en pré-traitement, non prioritaire.
+4. Dataset : Steam Games Dataset (Martin Bustos, Kaggle, MIT). Un seul dataset pour éviter doublons et risques de format.
+5. Volume : échantillon 5000 jeux (triés par avis positifs). Dataset complet disponible.
+6. Stack : FastAPI (pas Flask) + Vue.js 3 + Vite. Confirmé.
+7. SQLite : remplacé par lecture directe du CSV nettoyé (données statiques Steam). SQLite prévu ultérieurement pour préférences utilisateur (v0.2).
+8. Tests : pytest conservés (validation Jaccard). Docker non prioritaire, API REST d'abord.
+9. Stratégie : v0.1 = API REST complète (recommandation Jaccard). Interface Vue + dashboard en v0.2.
+
+
 ## État du projet
 
-19/10 : dépôt créé, dataset choisi et téléchargé, structure du projet en place. Prochaine étape : nettoyage des données et première méthode de recommandation (Jaccard).
+19/10 : dépôt créé, dataset choisi (Steam Games MIT), README + réponses aux 9 remarques (docs/remarques.md), .gitignore + licence MIT. Nettoyage lancé (`prepare_data.py`) : `games_clean.csv` (5000 jeux). API Jaccard en cours (`v0.1`). Vue + dashboard (`v0.2`).

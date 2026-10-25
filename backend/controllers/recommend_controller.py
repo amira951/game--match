@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from models.repository import GameRepository
 from services.jaccard_service import JaccardRecommender
 
@@ -7,7 +7,8 @@ repo = GameRepository()
 jaccard_reco = JaccardRecommender(repo)
 
 @router.get("/games")
-def list_games(): return repo.all()
+def list_games(search: str = "", limit: int = Query(20, ge=1, le=100), offset: int = Query(0, ge=0)):
+    return repo.search(search, limit, offset)
 
 @router.get("/recommend/jaccard/{game_id}")
 def rec(game_id: int, k: int = 10):

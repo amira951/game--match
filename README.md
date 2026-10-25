@@ -33,7 +33,8 @@ Exemple : {action, combat, hackandslash} et {action, mondeouvert, rpg} ont 1 tag
 - Licence MIT, 125 855 jeux, données issues de l'API Steam et de SteamSpy
 - Choisi parce qu'il contient à la fois une colonne de tags (nécessaire pour Jaccard) et une colonne de description (nécessaire pour les embeddings), avec une licence claire et une mise à jour hebdomadaire
 - Le fichier `games.csv` (401 Mo) n'est pas versionné : il faut le télécharger sur Kaggle et le placer dans `backend/data/raw/`
-- Un échantillon nettoyé sera généré par un script dans `backend/scripts/`
+- L'échantillon nettoyé `backend/data/games_clean.csv` (5000 jeux) est versionné : l'application fonctionne sans télécharger le fichier brut
+- Cet échantillon est généré par le script `backend/scripts/prepare_data.py`, qui répare l'en-tête décalé du CSV, retire les jeux sans tags ou sans description, nettoie les tags et les descriptions, puis garde les 5000 jeux ayant le plus d'avis positifs
 
 ## Stack technique
 
@@ -46,19 +47,20 @@ Exemple : {action, combat, hackandslash} et {action, mondeouvert, rpg} ont 1 tag
 | Embeddings | Sentence Transformers |
 | Visualisation | Chart.js |
 | Tests | Pytest, Vitest |
-| Déploiement | Docker |
+| Déploiement | Docker (optionnel) |
 
 ## Structure du projet
 
 ```
 game-match/
 ├── backend/
+│   ├── main.py        point d'entrée de l'API
 │   ├── controllers/   routes de l'API
 │   ├── services/      algorithmes de recommandation
 │   ├── models/        accès aux données
 │   ├── scripts/       préparation des données
 │   ├── tests/
-│   └── data/
+│   └── data/          games_clean.csv (échantillon), raw/ (non versionné)
 ├── frontend/
 ├── docs/
 ├── README.md
@@ -68,11 +70,38 @@ game-match/
 
 ## Installation
 
-Instructions à compléter dès que le backend et le frontend sont en place.
+### Backend
+
+```powershell
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+.venv\Scripts\python.exe -m uvicorn main:app --reload
+```
+
+L'API est disponible sur `http://127.0.0.1:8000` et sa documentation interactive sur `http://127.0.0.1:8000/docs`.
+
+Routes disponibles :
+
+| Route | Rôle |
+|---|---|
+| `GET /api/games` | liste des jeux (id et titre) |
+| `GET /api/recommend/jaccard/{game_id}?k=10` | recommandations par similarité de Jaccard |
+
+Régénérer l'échantillon (facultatif, nécessite `games.csv` dans `backend/data/raw/`) :
+
+```powershell
+.venv\Scripts\python.exe scripts\prepare_data.py
+```
+
+### Frontend
+
+Instructions à compléter dès que le frontend est en place.
 
 ## Organisation Git
 
-- Une branche par membre, nommée `prenom/version`
+- Une branche par fonctionnalité, nommée `prenom/nom-de-la-fonctionnalite` (exemple : `kenzo/page-recherche`)
 - Intégration dans `main` par Pull Request après relecture
 - Numérotation des versions en semantic versioning (`v0.1.0`, `v0.2.0`, ..., `v1.0.0`)
 
@@ -91,7 +120,7 @@ Le code source est sous licence MIT (voir le fichier `LICENSE`). Le dataset est 
 ## Réponses aux remarques du jury
 
 1. Jaccard : approche plate volontaire (tags SteamSpy sans hiérarchie). Amélioration future possible avec taxonomie externe.
-2. Granularité : tags nettoyés (minuscule, suppression des très rares <3 occurrences dans l'échantillon). Pas d'enrichissement ChatGPT.
+2. Granularité : tags nettoyés (minuscule, suppression des très rares, moins de 3 occurrences dans le dataset filtré, avant la sélection de l'échantillon de 5000 jeux). Pas d'enrichissement ChatGPT.
 3. Embeddings : description complète utilisée. Isoler gameplay/graphismes possible en pré-traitement, non prioritaire.
 4. Dataset : Steam Games Dataset (Martin Bustos, Kaggle, MIT). Un seul dataset pour éviter doublons et risques de format.
 5. Volume : échantillon 5000 jeux (triés par avis positifs). Dataset complet disponible.
@@ -99,7 +128,6 @@ Le code source est sous licence MIT (voir le fichier `LICENSE`). Le dataset est 
 7. SQLite : remplacé par lecture directe du CSV nettoyé (données statiques Steam). SQLite prévu ultérieurement pour préférences utilisateur (v0.2).
 8. Tests : pytest conservés (validation Jaccard). Docker non prioritaire, API REST d'abord.
 9. Stratégie : v0.1 = API REST complète (recommandation Jaccard). Interface Vue + dashboard en v0.2.
-
 
 ## État du projet
 

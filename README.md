@@ -86,7 +86,7 @@ Routes disponibles :
 
 | Route | Rôle |
 |---|---|
-| `GET /api/games` | liste des jeux (id et titre) |
+| `GET /api/games?search=&limit=20&offset=0` | recherche de jeux par titre, avec pagination |
 | `GET /api/recommend/jaccard/{game_id}?k=10` | recommandations par similarité de Jaccard |
 
 Régénérer l'échantillon (facultatif, nécessite `games.csv` dans `backend/data/raw/`) :
@@ -131,4 +131,4 @@ Le code source est sous licence MIT (voir le fichier `LICENSE`). Le dataset est 
 
 ## État du projet
 
-25/10 : dataset nettoyé (games_clean.csv, 5000 jeux), API Jaccard fonctionnelle (v0.1 backend). Prochaine étape : interface Vue et recherche de jeux.
+25/10 : dataset nettoyé (games_clean.csv, 5000 jeux), API Jaccard et recherche de jeux fonctionnelles (v0.1 backend). Prochaine étape : tests pytest, puis interface Vue (équipe frontend).

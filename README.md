@@ -103,4 +103,4 @@ Le code source est sous licence MIT (voir le fichier `LICENSE`). Le dataset est 
 
 ## État du projet
 
-19/10 : dépôt créé, dataset choisi (Steam Games MIT), README + réponses aux 9 remarques (docs/remarques.md), .gitignore + licence MIT. Nettoyage lancé (`prepare_data.py`) : `games_clean.csv` (5000 jeux). API Jaccard en cours (`v0.1`). Vue + dashboard (`v0.2`).
+25/10 : dataset nettoyé (games_clean.csv, 5000 jeux), API Jaccard fonctionnelle (v0.1 backend). Prochaine étape : interface Vue et recherche de jeux.

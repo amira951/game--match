@@ -30,7 +30,7 @@ Exemple : {action, combat, hackandslash} et {action, mondeouvert, rpg} ont 1 tag
 ## Dataset
 
 - Steam Games Dataset, Martin Bustos (Fronkon Games), Kaggle
-- Licence MIT, 125 855 jeux, données issues de l'API Steam et de SteamSpy
+- Licence MIT, 125 855 jeux dont environ 83 000 avec tags et description, données issues de l'API Steam et de SteamSpy
 - Choisi parce qu'il contient à la fois une colonne de tags (nécessaire pour Jaccard) et une colonne de description (nécessaire pour les embeddings), avec une licence claire et une mise à jour hebdomadaire
 - Le fichier `games.csv` (401 Mo) n'est pas versionné : il faut le télécharger sur Kaggle et le placer dans `backend/data/raw/`
 - L'échantillon nettoyé `backend/data/games_clean.csv` (5000 jeux) est versionné : l'application fonctionne sans télécharger le fichier brut
@@ -59,7 +59,7 @@ game-match/
 │   ├── services/      algorithmes de recommandation
 │   ├── models/        accès aux données
 │   ├── scripts/       préparation des données
-│   ├── tests/
+│   ├── tests/         tests pytest (test_jaccard.py)
 │   └── data/          games_clean.csv (échantillon), raw/ (non versionné)
 ├── frontend/
 ├── docs/
@@ -99,9 +99,19 @@ Régénérer l'échantillon (facultatif, nécessite `games.csv` dans `backend/da
 
 Instructions à compléter dès que le frontend est en place.
 
+## Tests
+
+Backend, depuis le dossier `backend` avec l'environnement activé :
+
+```powershell
+.venv\Scripts\python.exe -m pytest -v
+```
+
+`tests/test_jaccard.py` contient 5 tests : exemple du sujet (score 0,2), jeux identiques (1,0), aucun tag commun (0,0), ensembles vides (pas de division par zéro) et exclusion du jeu de départ des recommandations.
+
 ## Organisation Git
 
-- Une branche par fonctionnalité, nommée `prenom/nom-de-la-fonctionnalite` (exemple : `kenzo/page-recherche`)
+- Une branche par fonctionnalité, nommée `prenom/nom-de-la-fonctionnalite` (exemple : `amira/tests-jaccard`)
 - Intégration dans `main` par Pull Request après relecture
 - Numérotation des versions en semantic versioning (`v0.1.0`, `v0.2.0`, ..., `v1.0.0`)
 
@@ -126,9 +136,9 @@ Le code source est sous licence MIT (voir le fichier `LICENSE`). Le dataset est 
 5. Volume : échantillon 5000 jeux (triés par avis positifs). Dataset complet disponible.
 6. Stack : FastAPI (pas Flask) + Vue.js 3 + Vite. Confirmé.
 7. SQLite : remplacé par lecture directe du CSV nettoyé (données statiques Steam). SQLite prévu ultérieurement pour préférences utilisateur (v0.2).
-8. Tests : pytest conservés (validation Jaccard). Docker non prioritaire, API REST d'abord.
+8. Tests : pytest conservés, 5 tests de validation de Jaccard en place. Docker non prioritaire, API REST d'abord.
 9. Stratégie : v0.1 = API REST complète (recommandation Jaccard). Interface Vue + dashboard en v0.2.
 
 ## État du projet
 
-25/10 : dataset nettoyé (games_clean.csv, 5000 jeux), API Jaccard et recherche de jeux fonctionnelles (v0.1 backend). Prochaine étape : tests pytest, puis interface Vue (équipe frontend).
+25/10 : dataset nettoyé (games_clean.csv, 5000 jeux), API Jaccard et recherche de jeux fonctionnelles, 5 tests pytest sur Jaccard (v0.1 backend). Prochaine étape : gestion des erreurs, puis interface Vue (équipe frontend) .

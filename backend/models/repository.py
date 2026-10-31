@@ -28,6 +28,69 @@ class GameRepository:
                 "items": page[["id","title","image","genres"]].to_dict(orient="records")}
 
 
+    def get_recommendation_based_on_game(self, game_name, top_n=5):
+        """
+        Ecrite sur kenzo/jaccard cette fonctione permer de récupèrer une liste de jeux similaires à un jeu donné en combinant
+        les genres et les tags via l'indice de Jaccard.
+        """
+        jeu = self.df[self.df["title"].str.lower() == game_name.lower()]
+
+        if jeu.empty:
+            return {"error": f"'{game_name}' n'est pas dans le jeu de données"}
+
+        target_idx = jeu.index[0]
+
+        # extraire et nettoyer les genres du jeu cible
+        target_genres_str = str(self.df.iloc[target_idx].get("genres", ""))
+        target_genres = {g.strip().lower() for g in target_genres_str.split(",") if g.strip()}
+
+        # extraire et nettoyer les tags du jeu cible depuis self.tag_sets
+        target_tags = {str(t).strip().lower() for t in self.tag_sets[target_idx] if str(t).strip()}
+
+        scores = []
+
+        # parcourir chaque ligne du DataFrame pour comparer
+        for idx, row in self.df.iterrows():
+            # ne pas comparer le jeu avec lui-même
+            if idx == target_idx:
+                scores.append(-1.0) # Score minimal pour l'exclure du top
+                continue
+
+            # genres du jeu courant dans le CSV
+            game_genres_str = str(row.get("genres", ""))
+            game_genres = {g.strip().lower() for g in game_genres_str.split(",") if g.strip()}
+
+            game_tags = {str(t).strip().lower() for t in self.tag_sets[idx] if str(t).strip()}
+
+
+            if target_genres and game_genres:
+                # la logique est expliquer dans la fonction utilisateur
+                g_inter = len(target_genres.intersection(game_genres))
+                g_union = len(target_genres.union(game_genres))
+                genre_score = g_inter / g_union if g_union > 0 else 0.0
+            else:
+                genre_score = 0.0
+
+            if target_tags and game_tags:
+                t_inter = len(target_tags.intersection(game_tags))
+                t_union = len(target_tags.union(game_tags))
+                tag_score = t_inter / t_union if t_union > 0 else 0.0
+            else:
+                tag_score = 0.0
+
+            # les genres étant plus généraux , on importe plus d'importance aux tags
+            combined_score = (genre_score * 0.4) + (tag_score * 0.6)
+            scores.append(combined_score)
+
+
+        df_scored = self.df.copy()
+        df_scored["similarity_score"] = scores
+
+        recommended_df = df_scored.sort_values(by="similarity_score", ascending=False).head(top_n)
+
+        return recommended_df[["id", "title", "image", "genres", "similarity_score"]].to_dict(orient="records")
+
+
     def get_recommendation_based_on_user(self,pseudo) :
     """
     Ecrite sur kenzo/jaccarte cette fonction permet de récupérer une liste de jeux qui se rapproche le plus posssible

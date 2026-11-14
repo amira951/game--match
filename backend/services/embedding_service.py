@@ -3,6 +3,8 @@ from pathlib import Path
 
 import numpy as np
 
+from services.metrics import MemoryProbe, memory_block
+
 EMBEDDINGS_FILE = Path(__file__).resolve().parents[1] / "data" / "embeddings.npy"
 
 
@@ -29,8 +31,19 @@ class EmbeddingRecommender:
             self._emb = emb
         return self._emb
 
-    def recommend(self, game_id: int, k: int = 10) -> dict:
+    def recommend(self, game_id: int, k: int = 10, memory: bool = False) -> dict:
         emb = self._load()
+        with MemoryProbe(memory) as probe:
+            res = self._recommend(emb, game_id, k)
+        res["metrics"]["memory"] = memory_block(probe, round(emb.nbytes / 1024 / 1024, 2))
+        res["metrics"]["complexity"] = {
+            "time": "O(n·d + n)",
+            "index_memory": "O(n·d)",
+            "offline_cost": "O(n·encodage) (une fois)",
+        }
+        return res
+
+    def _recommend(self, emb, game_id: int, k: int) -> dict:
         start = time.perf_counter()
         scores = emb @ emb[game_id]
         scores[game_id] = -np.inf

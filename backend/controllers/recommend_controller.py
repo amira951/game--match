@@ -13,14 +13,14 @@ def list_games(search: str = "", limit: int = Query(20, ge=1, le=100), offset: i
     return repo.search(search, limit, offset)
 
 @router.get("/recommend/jaccard/{game_id}")
-def rec(game_id: int, k: int = 10):
+def rec(game_id: int, k: int = 10, memory: bool = False):
     if game_id < 0 or game_id >= repo.count(): raise HTTPException(404, "Not found")
-    return jaccard_reco.recommend(game_id, k)
+    return jaccard_reco.recommend(game_id, k, memory)
 
 @router.get("/recommend/embeddings/{game_id}")
-def rec_embeddings(game_id: int, k: int = Query(10, ge=1, le=50)):
+def rec_embeddings(game_id: int, k: int = Query(10, ge=1, le=50), memory: bool = False):
     if game_id < 0 or game_id >= repo.count(): raise HTTPException(404, "Not found")
     try:
-        return embedding_reco.recommend(game_id, k)
+        return embedding_reco.recommend(game_id, k, memory)
     except EmbeddingsNotAvailable as e:
         raise HTTPException(503, str(e))

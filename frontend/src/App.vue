@@ -10,6 +10,7 @@ const suggestionsOpen = ref(false)
 const loadingGames = ref(false)
 const loadingResults = ref(false)
 const results = ref(null)
+const embResults = ref(null)
 const error = ref('')
 const searchError = ref('')
 const k = ref(6)
@@ -18,6 +19,22 @@ let requestNumber = 0
 const fmt = n => typeof n === 'number' ? `${Math.round(n * 100)}%` : '—'
 const image = game => game?.image && /^https?:\/\//.test(game.image) ? game.image : ''
 const score = game => typeof game?.score === 'number' ? Math.round(game.score * 100) : 0
+const mb = v => typeof v === 'number' ? v.toLocaleString('fr-FR', { maximumFractionDigits: 2 }) : '—'
+const kb = v => typeof v !== 'number' ? '—' : v >= 1024 ? `${mb(v / 1024)} Mo` : `${mb(v)} Ko`
+const perfRows = computed(() => {
+  const j = results.value?.metrics, e = embResults.value?.metrics
+  const row = (label, f) => ({ label, j: j ? f(j) : '—', e: e ? f(e) : 'non disponible' })
+  return [
+    row('Temps de la requête', m => `${mb(m.time_ms)} ms`),
+    row('Jeux comparés', m => mb(m.compared)),
+    row('Pic mémoire (tracemalloc)', m => kb(m.memory?.peak_kb)),
+    row('Mémoire de l\'index', m => typeof m.memory?.index_mb === 'number' ? `${mb(m.memory.index_mb)} Mo` : '—'),
+    row('RSS du processus (psutil)', m => typeof m.memory?.rss_mb === 'number' ? `${mb(m.memory.rss_mb)} Mo` : '—'),
+    row('Complexité en temps', m => m.complexity?.time ?? '—'),
+    row('Complexité mémoire (index)', m => m.complexity?.index_memory ?? '—'),
+    row('Coût hors ligne', m => m.complexity?.offline_cost ?? '—'),
+  ]
+})
 const displayed = computed(() => results.value?.results?.slice(0, k.value) || [])
 async function searchGames() {
   const req = ++requestNumber
@@ -38,11 +55,16 @@ function choose(game) { selected.value = game; query.value = game.title; suggest
 function clearSelection() { selected.value = null; results.value = null; query.value = ''; suggestionsOpen.value = true }
 async function recommend() {
   if (!selected.value) { suggestionsOpen.value = true; return }
-  loadingResults.value = true; error.value = ''; results.value = null
+  loadingResults.value = true; error.value = ''; results.value = null; embResults.value = null
   try {
-    const r = await fetch(`${API}/api/recommend/jaccard/${selected.value.id}?k=${k.value}`)
+    const q = `${selected.value.id}?k=${k.value}&memory=true`
+    const [r, re] = await Promise.all([
+      fetch(`${API}/api/recommend/jaccard/${q}`),
+      fetch(`${API}/api/recommend/embeddings/${q}`).catch(() => null),
+    ])
     if (!r.ok) throw new Error(`Erreur HTTP ${r.status}`)
     results.value = await r.json()
+    embResults.value = re && re.ok ? await re.json() : null
     document.getElementById('recommendations')?.scrollIntoView({behavior:'smooth',block:'start'})
   } catch(e) { error.value = `Impossible de charger les recommandations : ${e.message}` }
   finally { loadingResults.value = false }
@@ -74,7 +96,8 @@ async function recommend() {
       <div v-if="!results && !loadingResults" class="empty-state"><div class="empty-icon"><Gamepad2 :size="36"/></div><h3>La prochaine aventure t'attend</h3><p>Choisis ton jeu préféré ci-dessus et lance l'analyse pour découvrir des jeux similaires.</p></div>
       <div v-if="loadingResults" class="empty-state"><LoaderCircle :size="35" class="spin accent-icon"/><h3>On cherche tes prochains favoris...</h3><p>Comparaison des tags en cours.</p></div>
       <template v-if="results"><div class="results-toolbar"><div class="method-chip"><span class="method-dot"></span> Similarité de Jaccard</div><div class="source-chip">À partir de <strong>{{results.source}}</strong></div></div><div class="game-grid"><article v-for="(game,index) in displayed" :key="game.id" class="game-card"><div class="game-image"><img v-if="image(game)" :src="image(game)" :alt="game.title" loading="lazy" @error="$event.target.style.display='none'"/><Gamepad2 class="fallback-icon" :size="48"/><span class="rank">#{{String(index+1).padStart(2,'0')}}</span></div><div class="game-info"><div class="score-row"><span class="similarity-label">SIMILARITÉ</span><span class="score-value">{{fmt(game.score)}}</span></div><div class="score-track"><div :style="{width:score(game)+'%'}"></div></div><h3 :title="game.title">{{game.title}}</h3><p class="genre">{{game.genres || 'Jeu vidéo'}}</p></div></article></div>
-      <div class="metrics-bar"><div><Clock3 :size="20"/><span><strong>{{results.metrics?.time_ms ?? '—'}} ms</strong><small>Temps d'exécution</small></span></div><div><Layers3 :size="20"/><span><strong>{{results.metrics?.compared ?? '—'}}</strong><small>Jeux comparés</small></span></div><div><Activity :size="20"/><span><strong>Jaccard</strong><small>Algorithme utilisé</small></span></div></div></template>
+      <div class="metrics-bar"><div><Clock3 :size="20"/><span><strong>{{results.metrics?.time_ms ?? '—'}} ms</strong><small>Temps d'exécution</small></span></div><div><Layers3 :size="20"/><span><strong>{{results.metrics?.compared ?? '—'}}</strong><small>Jeux comparés</small></span></div><div><Activity :size="20"/><span><strong>Jaccard</strong><small>Algorithme utilisé</small></span></div></div>
+      <div class="perf-panel"><h3>Performances et complexité</h3><table class="perf-table"><thead><tr><th></th><th>Jaccard</th><th>Embeddings</th></tr></thead><tbody><tr v-for="r in perfRows" :key="r.label"><td>{{r.label}}</td><td>{{r.j}}</td><td :class="{muted: r.e==='non disponible'}">{{r.e}}</td></tr></tbody></table><p v-if="!embResults" class="perf-note">Embeddings indisponibles : lance <code>python scripts/generate_embeddings.py</code> dans le dossier backend.</p></div></template>
     </section>
     <section id="how" class="how-section"><div class="container"><div class="section-kicker">/ SOUS LE CAPOT</div><h2>Deux approches. <span class="text-gradient">Un seul objectif.</span></h2><p class="how-intro">GameMatch compare deux façons de trouver des jeux similaires, avec des résultats et performances mesurables.</p><div class="methods-grid"><div class="method-card"><div class="method-header"><span class="method-icon"><Layers3 :size="23"/></span><span class="status status-live"><span class="online-dot"></span> DISPONIBLE</span></div><span class="method-index">MÉTHODE 01</span><h3>Similarité de Jaccard</h3><p>Compare les tags associés aux jeux pour identifier ceux qui partagent le plus de caractéristiques.</p><div class="method-footer"><span>Basé sur les tags</span><ArrowRight :size="18"/></div></div><div class="method-card"><div class="method-header"><span class="method-icon ai-icon"><Sparkles :size="23"/></span><span class="status status-soon">BIENTÔT DISPONIBLE</span></div><span class="method-index">MÉTHODE 02</span><h3>Embeddings sémantiques</h3><p>Analyse le sens des descriptions avec un modèle d'IA pour repérer les jeux proches sémantiquement.</p><div class="method-footer"><span>Sentence Transformers · IA</span><ArrowRight :size="18"/></div></div></div><div class="note"><Info :size="17"/> Le dashboard comparatif complet (temps, mémoire, énergie) sera disponible lorsque les deux méthodes seront intégrées.</div></div></section>
   </main><footer><div class="container footer-inner"><div class="brand footer-brand"><span class="brand-icon"><Gamepad2 :size="19"/></span><span>game<span class="brand-accent">match</span><span class="brand-dot">.</span></span></div><span>Projet SAÉ 5.Real.01 · BUT 3 Informatique · Les Castors bâtisseurs</span><span>Fait avec Vue 3 + FastAPI</span></div></footer>

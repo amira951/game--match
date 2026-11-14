@@ -162,4 +162,4 @@ Le code source est sous licence MIT (voir le fichier `LICENSE`). Le dataset est 
 
 ## État du projet
 
-25/10 : dataset nettoyé (games_clean.csv, 5000 jeux), API Jaccard et recherche de jeux fonctionnelles, 5 tests pytest sur Jaccard (v0.1 backend). Prochaine étape : gestion des erreurs, puis interface Vue (équipe frontend) .
+14/11 :dataset nettoyé (games_clean.csv, 5000 jeux), API Jaccard et recherche de jeux fonctionnelles, 5 tests pytest sur Jaccard (v0.1 backend) , interface Vue (équipe frontend) ,embeddings.

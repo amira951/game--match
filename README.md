@@ -97,7 +97,28 @@ Régénérer l'échantillon (facultatif, nécessite `games.csv` dans `backend/da
 
 ### Frontend
 
-Instructions à compléter dès que le frontend est en place.
+Interface Vue 3 + Vite, connectée à l'API du backend. Le backend doit être lancé en premier (voir ci-dessus).
+ 
+Prérequis : Node.js 18 ou plus récent.
+ 
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+ 
+L'interface est disponible sur `http://localhost:5173`.
+ 
+Par défaut, le frontend appelle l'API sur `http://127.0.0.1:8000`. Pour changer cette adresse, copier `.env.example` en `.env` et modifier `VITE_API_URL`.
+ 
+Autres commandes :
+ 
+| Commande | Rôle |
+|---|---|
+| `npm run build` | génère la version de production dans `dist/` |
+| `npm run preview` | prévisualise la version de production |
+ 
+L'interface permet de rechercher un jeu par titre, de le sélectionner puis d'afficher les jeux recommandés par similarité de Jaccard, avec leur score. Un tableau « Performances et complexité » affiche pour Jaccard le temps de la requête, le nombre de jeux comparés, le pic mémoire, la mémoire de l'index, la mémoire du processus et la complexité.
 
 ## Tests
 

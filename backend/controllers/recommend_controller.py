@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query
 from models.repository import GameRepository
-from services.jaccard_service import JaccardRecommender
+from services.jaccard_service import jacard
 from services.embedding_service import EmbeddingRecommender, EmbeddingsNotAvailable
 
 router = APIRouter()
@@ -16,6 +16,10 @@ def list_games(search: str = "", limit: int = Query(20, ge=1, le=100), offset: i
 def rec(game_id: int, k: int = 10):
     if game_id < 0 or game_id >= repo.count(): raise HTTPException(404, "Not found")
     return jaccard_reco.recommend(game_id, k)
+
+@router.get("/recommend/jaccard/user/{pseudo}")
+def recbyuser(pseudo: str, k: int = 10):
+    return jaccard_reco.recommend_based_on_user(pseudo)
 
 @router.get("/recommend/embeddings/{game_id}")
 def rec_embeddings(game_id: int, k: int = Query(10, ge=1, le=50)):

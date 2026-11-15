@@ -1,12 +1,17 @@
 import time
-
-# REMARQUE 1 : approche plate volontaire (pas de hiérarchie dans dataset SteamSpy)
-def jaccard(a: set, b: set) -> float:
-    if not a and not b: return 0.0
-    return len(a & b) / len(a | b)
+from app.model.repository import GameRepository
 
 class JaccardRecommender:
-    def __init__(self, repo): self.repo = repo
+    def __init__(self, repo: GameRepository = None):
+        self.repo = repo if repo is not None else GameRepository()
+
+
+    def jaccard(a: set, b: set) -> float:
+        if not a and not b: return 0.0
+        return len(a & b) / len(a | b)
+
+
+    # REMARQUE 1 : approche plate volontaire (pas de hiérarchie dans dataset SteamSpy)
     def recommend(self, game_id: int, k: int = 10) -> dict:
         start = time.perf_counter()
         target = self.repo.tag_sets[game_id]
@@ -23,3 +28,6 @@ class JaccardRecommender:
             "results": [{**self.repo.get(i), "score": round(s,3)} for i,s in top],
             "metrics": {"time_ms": round(elapsed, 2), "compared": len(scores)}
         }
+
+    def recommend_based_on_user(self,pseudo):
+        self.repo.get_recommendation_based_on_user(pseudo)

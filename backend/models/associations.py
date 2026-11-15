@@ -1,18 +1,17 @@
 from sqlalchemy import Table, Column, Integer, String, ForeignKey
 from database import Base
 
-has_liked_genre = Table(
-    'has_liked_genre',
-    Base.metadata,
-    Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('item_name', String(100), nullable=False),
-    Column('genre_id', Integer, ForeignKey('genres.id', ondelete='CASCADE'), nullable=False)
-)
+class HasLikedGenre(Base):
+    __tablename__ = 'has_liked_genre'
 
-has_liked_tags = Table(
-    'has_liked_tags',
-    Base.metadata,
-    Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('item_name', String(100), nullable=False),
-    Column('tag_id', Integer, ForeignKey('tags.id', ondelete='CASCADE'), nullable=False)
-)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    item_name = Column(String(100), nullable=False) # Ex: le pseudo de l'utilisateur
+    genre_id = Column(Integer, ForeignKey('genres.id', ondelete='CASCADE'), nullable=False)
+
+
+class HasLikedTags(Base):
+    __tablename__ = 'has_liked_tags'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    item_name = Column(String(100), nullable=False)
+    tag_id = Column(Integer, ForeignKey('tags.id', ondelete='CASCADE'), nullable=False)

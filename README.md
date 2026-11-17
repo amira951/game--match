@@ -1,5 +1,6 @@
-Lien du dépôt Git : [https://github.com/amira951/game--match](https://github.com/amira951/game--match)
 # Game Match
+Lien du dépôt Git : [https://github.com/amira951/game--match](https://github.com/amira951/game--match)
+
 Application web découplée de recommandation comparée de jeux vidéo.
 
 Projet réalisé dans le cadre de la SAÉ 5.Real.01 du BUT 3 Informatique, IUT de Villetaneuse (Université Sorbonne Paris Nord).
@@ -59,7 +60,7 @@ game-match/
 │   ├── services/      algorithmes de recommandation
 │   ├── models/        accès aux données
 │   ├── scripts/       préparation des données
-│   ├── tests/         tests pytest (test_jaccard.py)
+│   ├── tests/         tests pytest (à venir)
 │   └── data/          games_clean.csv (échantillon), raw/ (non versionné)
 ├── frontend/
 ├── docs/
@@ -122,13 +123,8 @@ L'interface permet de rechercher un jeu par titre, de le sélectionner puis d'af
 
 ## Tests
 
-Backend, depuis le dossier `backend` avec l'environnement activé :
+Les tests pytest sont en cours d'intégration (branche à fusionner dans main).
 
-```powershell
-.venv\Scripts\python.exe -m pytest -v
-```
-
-`tests/test_jaccard.py` contient 5 tests : exemple du sujet (score 0,2), jeux identiques (1,0), aucun tag commun (0,0), ensembles vides (pas de division par zéro) et exclusion du jeu de départ des recommandations.
 
 ## Organisation Git
 
@@ -156,10 +152,10 @@ Le code source est sous licence MIT (voir le fichier `LICENSE`). Le dataset est 
 4. Dataset : Steam Games Dataset (Martin Bustos, Kaggle, MIT). Un seul dataset pour éviter doublons et risques de format.
 5. Volume : échantillon 5000 jeux (triés par avis positifs). Dataset complet disponible.
 6. Stack : FastAPI (pas Flask) + Vue.js 3 + Vite. Confirmé.
-7. SQLite : remplacé par lecture directe du CSV nettoyé (données statiques Steam). SQLite prévu ultérieurement pour préférences utilisateur (v0.2).
-8. Tests : pytest conservés, 5 tests de validation de Jaccard en place. Docker non prioritaire, API REST d'abord.
-9. Stratégie : v0.1 = API REST complète (recommandation Jaccard). Interface Vue + dashboard en v0.2.
-
+7. SQLite : remplacé par lecture directe du CSV nettoyé (données statiques Steam). SQLite prévu ultérieurement pour préférences utilisateur (v0.2). 
+8. Tests : pytest conservés, tests de validation de Jaccard en cours d'intégration. Docker non prioritaire.
+9. Stratégie : v0.1 = API REST complète (recommandation Jaccard) et interface Vue de base. Dashboard de comparaison complet (Jaccard et embeddings) en v0.2.
+ 
 ## État du projet
 
-14/11 :dataset nettoyé (games_clean.csv, 5000 jeux), API Jaccard et recherche de jeux fonctionnelles, 5 tests pytest sur Jaccard (v0.1 backend) , interface Vue (équipe frontend) ,embeddings.
+14/11 :dataset nettoyé (games_clean.csv, 5000 jeux), API Jaccard et recherche de jeux fonctionnelles, interface Vue (équipe frontend) ,embeddings.

@@ -1,5 +1,5 @@
-# Game Match
 Lien du dépôt Git : [https://github.com/amira951/game--match](https://github.com/amira951/game--match)
+# Game Match
 Application web découplée de recommandation comparée de jeux vidéo.
 
 Projet réalisé dans le cadre de la SAÉ 5.Real.01 du BUT 3 Informatique, IUT de Villetaneuse (Université Sorbonne Paris Nord).
